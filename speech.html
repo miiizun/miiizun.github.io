@@ -1,0 +1,172 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>オウム返し</title>
+</head>
+<style>
+    body{
+        background-color:#c8f2fa;
+    }
+   .center-box {
+        text-align:right;
+   }
+    
+   .large-text {
+        font-size: 5.0rem;
+        color:#fac8fa;
+        text-align:center;
+        margin-top:130px;
+        font-weight: bold;
+   }
+
+    p{
+        margin-top: 60px;
+        font-size: 30px;
+        color:#fac8fa;
+        font-weight: bold;
+    }
+</style>
+<body>
+
+
+       <img class="gazo3" src="kumo.png" alt=""  style="width:360px; left:160px; top:30px; position:absolute; opacity: 0.8;" >
+       
+           <center><img class="gazo1" src="nazonazo.PNG" alt=""  style="width:550px; margin-top:20px; position:relative; " ></center>
+           
+    <div id="result-div" class="large-text"></div>
+    
+
+    
+    <img class="gazo4" src="kumo.png" alt=""  style="width:300px; right:5px; top:230px; position:absolute; opacity: 0.8;" >
+    
+    <img class="gazo6" src="kumo.png" alt=""  style="width:280px; left:20px; top:430px; position:absolute; opacity: 0.8;" >
+    
+    <img class="gazo5" src="kan.PNG" alt=""  style="width:360px; left:230px; bottom:-40px; position:absolute;" >
+    
+    <img class="gazo2" src="cinamo.PNG" alt="" align="right" style="width:650px; right:10px; bottom:160px; position:absolute; opacity:0.9;" >
+    
+<p class="center-box">
+<img src="micoff.svg" id ="mic" style = "width:170px; right:480px; bottom:5px; position:absolute;">
+</p>
+
+
+
+
+<script>
+  const resultDiv = document.querySelector('#result-div');
+  const micDiv = document.querySelector('#mic');
+  let speakingtime = 0;
+  
+  // 音声認識機能(Chrome)
+  let rec = new webkitSpeechRecognition();
+  let stopped = true;
+  rec.continuous = true;
+  rec.interimResults = false;
+  rec.lang = 'ja-JP';
+
+  micDiv.onclick = function () {
+    if (stopped == true) {
+      stopped = false;
+      resultDiv.innerHTML = "";
+      rec.start();
+    } else {
+      stopped = true;
+      rec.stop();
+    }
+  }
+
+  rec.onstart = function () { 
+    console.log('on start');
+    micDiv.setAttribute("src","micon.svg");
+    speakingtime = 0;
+  };
+
+  rec.onend = function () { 
+    console.log('on end');
+    micDiv.setAttribute("src","micoff.svg");
+    if (stopped == false) {
+      setTimeout(function () {
+        rec.start();
+      },speakingtime);
+    }
+  };
+
+  rec.onresult = function (e) {
+    rec.stop();
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) {
+        console.log(e);
+        let text = e.results[i][0].transcript;
+        console.log(text);
+        speakingtime = text.length * 200;
+        console.log("estimate:", speakingtime, "ms");
+        speak(reply(text));
+        resultDiv.innerHTML = text;
+      }
+    }
+  }
+
+  function reply (text){
+    let re = new RegExp(".*問題出して.*");
+          if (re.test(text)) {
+            return "わかりました。まずは初級編から出しますね。では問題。。座っているのに空にあるものってなーんだ。。ヒントは夜になると出てくるものです";
+          }
+    
+    let re2 = new RegExp(".*星座.*");
+          if (re2.test(text)) {
+            return "ピンポーン。正解です。星が座っているからですね。では次の問題です。。人間じゃなく紙でできたスターってなーんだ。。ヒントは最初に、「ポ」という文字が付きますよ";
+          }
+   
+    let re3 = new RegExp(".*ポスター.*");
+          if (re3.test(text)) {
+            return "ピンポーン。正解です。では次の問題です。。子どもが喜 ぶお茶ってなーんだ。。ヒントは飲み物じゃないですよ";
+          }
+    
+    let re4 = new RegExp(".*おもちゃ.*");
+          if (re4.test(text)) {
+            return "ピンポーン。正解です。では次から中級編にレベルアップ！。では問題です。。らっぱは、らっぱでも、広くて走り回れる「らっぱ」はなーんだ";
+          }
+    
+    let re5 = new RegExp(".*はらっぱ.*");
+          if (re5.test(text)) {
+            return "ピンポーン。正解です。では最後に上級編の問題です。。朝になると大きな声で叫ぶ花ってなーんだ";
+          }
+            
+    let re6 = new RegExp(".*朝顔.*");
+          if (re6.test(text)) {
+            return "ピンポーン。正解です。朝、がおぉーですね。これで問題は終わりです。あなたはなんもんできましたか";
+              
+    }else{
+            return "ブッブー違います";
+    }
+  }
+
+  
+  // 発話機能をインスタンス化
+  let msg = new SpeechSynthesisUtterance();
+  let voices = window.speechSynthesis.getVoices();
+
+  function speak(text) {
+    // 以下オプション設定（日本語は効かないもよう。。）
+    msg.voice = voices[7]; // 7:Google 日本人 ja-JP ※他は英語のみ
+    msg.volume = 1.0; // 音量 min 0 ~ max 1
+    msg.rate = 1.0; // 速度 min 0 ~ max 10
+    msg.pitch = 1.0; // 音程 min 0 ~ max 2
+
+    msg.text = text; // 喋る内容
+    msg.lang = 'ja-JP'; // en-US or ja-JP
+    // msg.lang = 'en-US'; // en-US or ja-JP
+
+    // 発話実行
+    speechSynthesis.speak(msg);
+  }
+  
+  // 終了時の処理
+  msg.onend = function (event) {
+    console.log('喋った時間：' + event.elapsedTime + 'ms');
+  }
+
+
+</script>
+</body>
+</html>
