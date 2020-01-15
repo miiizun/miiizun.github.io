@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GAME</title>
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+   <script src="googleSheets.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/p5.min.js"></script>
+  </head>
+    <style>
+        body{
+            text-align:center;
+            background-image:url("images/bk6.png");
+            background-size: cover;
+        }
+        
+        div{
+            color:deepskyblue;
+            margin-left: 200px;
+        }
+        
+        button.cp_btn {
+            display: block;
+            color: #5cd1e6;
+            background-color:#ffffff;
+            width: 180px;
+            font-size: 18px;
+            margin-top: 20px;
+            margin-left: 300px;
+            border: double 4px #5cd1e6;
+            border-radius: 5%;
+            vertical-align: middle;
+            overflow: hidden;
+            transition: .6s;
+        }
+        
+        button.cp_btn:hover {
+            transform: rotateY(360deg);
+        }
+        
+        button.speak{
+            display: block;
+            color: #5cd1e6;
+            background-color:#ffffff;
+            width: 180px;
+            font-size: 18px;
+            margin-top: 20px;
+            margin-left: 300px;
+            border: double 4px #5cd1e6;
+            border-radius: 5%;
+            vertical-align: middle;
+            overflow: hidden;
+            transition: .6s;           
+        }
+    </style>
+  <body>
+     <div2 id="mybtn">
+   <button class="cp_btn" >遊び方を見る</button>
+
+   <div2 id="contents"></div2>
+  <br>
+    <a href="./game3.html"><img src="./images/game2.PNG" id="aiu" style=" width:600px; margin-top:100px; margin-bottom:30px;"></a>
+    <div>
+    <div>あなたのID: <span id="myid"></span>  ルームID: <span id="room"></span></div>
+  </div>
+  
+   
+    <img src="./images/kuma.PNG" style=" width:400px; margin-top:60px; margin-left:600px;">
+ 
+  <script>
+    let room = "s1317151";
+    let socket = io.connect('https://qa.fujimura.com');   
+      
+    let myid; 
+    let speedX = 0;
+    let speedY = 0;
+    let cinamo;
+    let text = "スマホを上下に傾けると、ウサギが上下に動くよ";
+    
+    // 発話機能をインスタンス化
+    let msg = new SpeechSynthesisUtterance();
+    let voices = window.speechSynthesis.getVoices();
+    
+    function speak(text) {
+    // 以下オプション設定
+    msg.voice = voices[7]; // 7:Google 日本人 ja-JP ※他は英語のみ
+    msg.volume = 1.0; // 音量 min 0 ~ max 1
+    msg.rate = 1.0; // 速度 min 0 ~ max 10
+    msg.pitch = 1.0; // 音程 min 0 ~ max 2
+
+    msg.text = text; // 喋る内容
+    msg.lang = 'ja-JP'; // en-US or ja-JP
+    // msg.lang = 'en-US'; // en-US or ja-JP
+
+    // 発話実行
+    speechSynthesis.speak(msg);
+     }
+      
+    // 終了時の処理
+    msg.onend = function (event) {
+    console.log("End: ",text);
+    }
+    
+    
+    document.querySelector("#room").innerHTML = room;
+    socket.on('mylogin', function(data) {
+      myid = data;
+      socket.emit('join', room); // 受信room IDを指定
+      document.querySelector("#myid").innerHTML = myid;
+      console.log("あなたのID: ", myid);
+    });
+
+      $(function(){
+      $("#mybtn").on("click",showdata);
+      async function showdata () {
+        let data = await loadSheets('s13!A1:E100');
+        console.log(data.values[0][0]);
+        $("#contents").append("<img height='170px' right='800px' margin-bottom='800px' src='"+data.values[1][2]+"'/>");
+      }
+    });
+      
+      let button = document.querySelector("#mybtn");
+        button.onclick = function () {
+            speak(text);
+        }
+  
+</script>
+</body>
+</html>
+      
+  </script>
+    <script async defer src="https://apis.google.com/js/api.js"
+      onload="this.onload=function(){};handleClientLoad()"
+      onreadystatechange="if (this.readyState === 'complete') this.onload()">
+    </script>
+  </body>
+</html>

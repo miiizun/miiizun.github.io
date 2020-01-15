@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GAME</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.7.2/p5.min.js"></script>
+            
+  </head>
+    <style>
+        body{
+            text-align:center;
+            background-image:url("images/bk6.png");
+            background-size: cover;
+        }
+        div{
+            color:deepskyblue;
+        }
+    </style>
+  <body>
+   <img src="./images/title2.png" alt="title" style = "width:600px; margin-top:20px; margin-bottom:20px;">
+
+   <div>
+    <div>あなたのID: <span id="myid"></span>  ルームID: <span id="room"></span></div>
+   </div>
+
+   <audio id="audio2" preload="auto" autoplay loop>
+    <source src="images/bgm.mp3" id="audio2" >
+   </audio>
+
+<iframe src="images/muon.mp3" allow="autoplay" id="audio" style="display:none"></iframe>
+ 
+  <script> 
+    let room = "s1317151";
+    let socket = io.connect('https://qa.fujimura.com');   
+      
+    let myid; 
+    let speedX = 0;
+    let speedY = 0;
+    let cinamo;
+    let teki;
+    let gameover;
+    let haikei1;
+    let haikei2;
+    let haikei3;
+    let audio;
+      
+    //ビジーwaitを使う方法
+    function sleep(waitMsec) {
+    var startMsec = new Date();
+ 
+    // 指定ミリ秒間だけループさせる（CPUは常にビジー状態）
+    while (new Date() - startMsec < waitMsec);
+    }
+      
+      
+
+    
+    
+    document.querySelector("#room").innerHTML = room;
+    socket.on('mylogin', function(data) {
+      myid = data;
+      socket.emit('join', room); // 受信room IDを指定
+      document.querySelector("#myid").innerHTML = myid;
+      console.log("あなたのID: ", myid);
+    });
+            
+      
+    socket.on('sensor', function(data) {
+        console.log(data.g)
+        speedX = 0.05*parseInt(data.g);
+        speedY = 0.05*parseInt(data.b);;
+    });
+      
+    let x = 0;
+    let y = 0;
+    let targetX = 0;
+    let targetY = 0;
+    let targetZ = 0;
+    let targetA = 0;
+    let targetB = 0;
+    let targetC = 0;
+    let d = 0;
+    let e = 640;
+      
+    function preload(){
+        cinamo = loadImage("./images/cinamo4.png")
+        teki = loadImage("./images/teki.png")
+        gameover = loadImage("./images/gameover.png")
+        haikei1 = loadImage("./images/bg1.png")
+        haikei2 = loadImage("./images/bg2.png")
+        haikei3 = loadImage("./images/bg3.jpg")
+        //gameoverbgm = loadSound("./images/gameover.mp3")
+    }
+
+    function setup() {
+      createCanvas(640,480);
+      background = image(haikei1,d,0,640, 480);
+      background = image(haikei2,e, 0,640, 480);
+      x = width/2;
+      y = height/2;
+      targetX = 640;
+      targetY = random(height);
+      targetZ = 640;
+      targetA = random(height);
+      targetB = 640;
+      targetC = random(height);
+    }
+
+
+    function draw() {
+      background = image(haikei1,d, 0, 640, 480);
+      background = image(haikei2,e, 0, 640, 480);
+        
+      x = 20;
+      y = y + speedY;
+        
+      d -= 5;
+      e -= 5;
+        
+      if(d <= -640){
+          d = 640;
+      }
+
+      if(e <= -640){
+          e = 640;
+      }
+        
+      targetX += -5;
+        if (targetX < 0) {
+            targetX = 640;
+            targetY += 100;
+        }
+        if (targetY > 430) {
+            targetY = 0;
+        }
+        
+        
+      targetZ += -6;
+        if (targetZ < 0) {
+            targetZ = 640;
+            targetA += 160;
+        }
+      if (targetA > 430) {
+            targetA = 240;
+        }
+        
+        
+      targetB += -4;
+        if (targetB < 0) {
+            targetB = 640;
+            targetC += 200;
+        }
+        if (targetC > 430) {
+            targetC = 150;
+        }
+
+      if (x > width-100) x=width-100;
+      if (x < 0) x=0;
+      if (y > height-100) y=height-100;
+      if (y < 0) y=0;
+        
+      let distance = Math.sqrt(Math.pow(x-targetX,2)+Math.pow(y-targetY,2));
+      console.log(distance);
+      if(distance < 50){
+          targetX = -10000;
+          targetY = -10000;
+          targetA = -10000;
+          targetB = -10000;
+          targetC = -10000;
+          targetZ = -10000;
+          d = 100000;
+          e = 100000;
+          image(haikei3,0,0,640, 480);
+          image(gameover,40,90,560, 300);
+          document.getElementById("audio2").pause();
+          cinamo.remove();
+      }
+        
+      let distance1 = Math.sqrt(Math.pow(x-targetZ,2)+Math.pow(y-targetA,2));
+      console.log(distance1);
+      if(distance1 < 50){
+          targetX = -10000;
+          targetY = -10000;
+          targetA = -10000;
+          targetB = -10000;
+          targetC = -10000;
+          targetZ = -10000;
+          d = 100000;
+          e = 100000;
+          image(haikei3,0,0,640, 480);
+          image(gameover,40,90,560, 300);
+          document.getElementById("audio2").pause();
+          cinamo.remove();
+      }
+        
+      let distance2 = Math.sqrt(Math.pow(x-targetB,2)+Math.pow(y-targetC,2));
+      console.log(distance2);
+      if(distance2 < 50){
+          targetX = -10000;
+          targetY = -10000;
+          targetA = -10000;
+          targetB = -10000;
+          targetC = -10000;
+          targetZ = -10000;
+          d = 100000;
+          e = 100000;
+          image(haikei3,0,0,640, 480);
+          image(gameover,40,90,560, 300);
+          //document.getElementById("cinamo").pause();
+          document.getElementById("audio2").pause();
+          cinamo.remove();
+          //cinamo.hide();
+          //$('teki').remove();
+      }
+        
+      image(teki,targetX, targetY, 50, 50);
+      image(teki,targetZ, targetA, 50, 50);
+      image(teki,targetB, targetC, 50, 50);
+      image(cinamo, x, y, 80, 80);
+    }
+
+          
+  </script>
+</body>
+</html>
